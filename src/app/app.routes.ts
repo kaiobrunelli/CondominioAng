@@ -60,6 +60,12 @@ export const routes: Routes = [
         title: 'Relatório – CondoGest',
       },
       {
+        path: 'agua',
+        loadComponent: () =>
+          import('./pages/agua/agua').then((m) => m.AguaPage),
+        title: 'Leituras de Água – CondoGest',
+      },
+      {
         path: 'configuracoes',
         loadComponent: () =>
           import('./pages/configuracoes/configuracoes').then((m) => m.ConfiguracoesPage),

@@ -55,7 +55,7 @@ const STATUS_CLASS: Record<StatusKey, string> = {
           id="mes-filtro"
           type="month"
           [value]="mesFiltro()"
-          (change)="onMesChange($event)"
+          (input)="onMesChange($event)"
           class="pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
       </div>

@@ -150,6 +150,7 @@ export class ShellLayout {
   protected readonly navItems: NavItem[] = [
     { label: 'Dashboard',     path: 'dashboard',     icon: 'space_dashboard' },
     { label: 'Despesas',      path: 'despesas',      icon: 'receipt_long'    },
+    { label: 'Água',          path: 'agua',          icon: 'water_drop'      },
     { label: 'Moradores',     path: 'moradores',     icon: 'groups'          },
     { label: 'Rateio',        path: 'rateio',        icon: 'calculate'       },
     { label: 'Relatório',     path: 'relatorio',     icon: 'bar_chart'       },

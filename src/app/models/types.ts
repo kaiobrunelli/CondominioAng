@@ -70,6 +70,32 @@ export interface RateioCalculo {
   valorTotal: number;
 }
 
+export interface ConfigAgua {
+  id: string;
+  condominio_id: string;
+  valor_por_litro: number;
+  updated_at?: string;
+}
+
+export interface LeituraAgua {
+  id: string;
+  condominio_id: string;
+  morador_id: string;
+  mes_referencia: string;   // YYYY-MM — mês da leitura
+  mes_vencimento: string;   // YYYY-MM — mês do vencimento da cobrança
+  leitura_atual: number;
+  leitura_anterior: number;
+  consumo_litros: number;
+  valor_unitario: number;
+  valor_total: number;
+  despesa_id?: string;
+  observacao?: string;
+  created_at?: string;
+  updated_at?: string;
+  // joined
+  moradores?: Pick<Morador, 'nome' | 'unidade' | 'tipo'>;
+}
+
 export interface RelatorioMensal {
   condominio_id: string;
   mes_referencia: string;
