@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import {
   ApplicationConfig,
   inject,
@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
       try { await condominioSvc.carregar(); } catch { /* silencia erro de rede */ }
     }),
   ],
-=======
+}
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -40,5 +40,5 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes)
   ]
->>>>>>> fcb52f3f8f289efa620a2dd74173bc97e9793ef5
+
 };
