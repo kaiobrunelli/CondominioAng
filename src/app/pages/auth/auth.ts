@@ -21,7 +21,7 @@ import { AuthService } from '../../services/auth.service';
         <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
           <span class="material-symbols-rounded text-white text-3xl" aria-hidden="true">apartment</span>
         </div>
-        <h1 class="text-2xl font-bold text-slate-900">CondoGest</h1>
+        <h1 class="text-2xl font-bold text-slate-900">GesCon - Gestão Condomínio</h1>
         <p class="text-slate-500 text-sm mt-1">Gestão inteligente de condomínios</p>
       </div>
 
