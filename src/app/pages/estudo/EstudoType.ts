@@ -1,0 +1,1 @@
+export type operacaoMatematica = (a: number, b: number) => number;

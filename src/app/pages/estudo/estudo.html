@@ -1,0 +1,53 @@
+<div class="bg-blue-100 h-screen flex flex-col items-center justify-center">
+    <div class="bg-fuchsia-200 p-4 rounded shadow">
+        <h1>Estudo</h1>
+    </div>
+    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-label="Rateio por morador">
+
+        <li class="bg-white rounded-2xl border border-slate-100 shadow-card p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+
+                    <div>
+                        <p class="text-sm font-semibold text-slate-800">Kaio Brunelli</p>
+                        <p class="text-xs text-slate-500">301</p>
+                    </div>
+                </div>
+                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700'">
+
+                    'Cobertura'
+                </span>
+            </div>
+
+            <dl class="space-y-1.5 border-t border-slate-50 pt-3">
+                <div class="flex justify-between text-xs text-slate-500">
+                    <dt>Cota base</dt>
+
+                </div>
+
+                <div class="flex justify-between text-xs text-amber-600">
+                    <dt>Rateio</dt>
+                    <dd>R$ 1.000,00</dd>
+
+                </div>
+
+                <div class="flex justify-between font-semibold text-slate-900 pt-1 border-t border-slate-100">
+                    <dt class="text-sm">Total a pagar</dt>
+                    <dd class="text-sm text-amber-600">R$ 1.200,00</dd>
+                </div>
+            </dl>
+        </li>
+    </ul>
+    <div class="max-w-3xl">
+        <app-sabor-item nome="Chocolate Belgia" (saborEscolhido)="adicionarAoCopinho($event)">
+          
+        </app-sabor-item>
+        Contador de Click {{contador()}}
+    </div>
+    <div>
+       <app-cardapio></app-cardapio>
+    </div>
+    <div>
+        <app-cardapio2></app-cardapio2>
+    </div>
+</div>
