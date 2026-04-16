@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  LOCALE_ID,
   provideAppInitializer,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -11,6 +12,7 @@ import { CondominioService } from './services/condominio.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
 

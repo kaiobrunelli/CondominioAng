@@ -103,7 +103,69 @@ export interface RelatorioMensal {
   total_receitas: number;
   saldo: number;
   qtd_despesas: number;
+  qtd_pagamentos: number;
   despesas_pagas: number;
   despesas_pendentes: number;
   despesas_atrasadas: number;
+}
+
+export type FormaPagamento = 'dinheiro' | 'pix' | 'transferencia' | 'boleto' | 'cheque' | 'cartao';
+
+export interface Pagamento {
+  id: string;
+  condominio_id: string;
+  despesa_id?: string;
+  morador_id?: string;
+  valor: number;
+  data_pagamento: string;        // DATE ISO
+  mes_referencia: string;        // YYYY-MM
+  forma_pagamento: FormaPagamento;
+  descricao?: string;
+  observacao?: string;
+  created_at?: string;
+  updated_at?: string;
+  // joined
+  despesas?: Pick<Despesa, 'descricao' | 'valor'>;
+  moradores?: Pick<Morador, 'nome' | 'unidade'>;
+}
+
+export interface LogSistema {
+  id: string;
+  condominio_id?: string;
+  usuario_id?: string;
+  tabela: string;
+  acao: string;
+  registro_id?: string;
+  dados_anteriores?: Record<string, unknown>;
+  dados_novos?: Record<string, unknown>;
+  descricao: string;
+  created_at?: string;
+}
+
+/** Item unificado para o ledger financeiro (despesa ou pagamento) */
+export interface LancamentoLedger {
+  id: string;
+  tipo: 'despesa' | 'pagamento';
+  data: string;
+  descricao: string;
+  categoria?: string;
+  categoriaIcone?: string;
+  categoriaCor?: string;
+  valor: number;
+  status?: Despesa['status'];
+  forma_pagamento?: FormaPagamento;
+  saldoAcumulado?: number;
+  mes_referencia: string;
+}
+
+/** Saldo financeiro global (todos os meses) do condomínio */
+export interface SaldoGlobal {
+  condominio_id: string;
+  total_recebido: number;
+  total_despesas: number;
+  total_pago: number;
+  total_em_aberto: number;
+  total_atrasado: number;
+  saldo_caixa: number;   // recebido - pago efetivo
+  saldo_geral: number;   // recebido - todas as despesas
 }

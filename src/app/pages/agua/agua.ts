@@ -9,13 +9,21 @@ import {
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeituraAguaService, formatMesLabel, mesProximo } from '../../services/leitura-agua.service';
+import { MesReferenciaService } from '../../services/mes-referencia.service';
 import { MoradoresService } from '../../services/moradores.service';
 import { DespesasService } from '../../services/despesas.service';
+import { MonthPickerComponent } from '../../shared/month-picker/month-picker';
 
 @Component({
   selector: 'app-agua',
-  imports: [CurrencyPipe, DecimalPipe, FormsModule],
+  imports: [CurrencyPipe, DecimalPipe, FormsModule, MonthPickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    /* Remove setas/spinners dos inputs numéricos */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  `],
   template: `
   <div class="p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
 
@@ -40,47 +48,35 @@ import { DespesasService } from '../../services/despesas.service';
     <div class="bg-white rounded-2xl border border-slate-100 shadow-card p-5 space-y-4">
       <div class="flex flex-wrap gap-6 items-end">
 
-        <!-- Mês de Referência -->
-        <div>
-          <label for="mes-ref" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Mês de Referência
-          </label>
-          <input
-            id="mes-ref"
-            type="month"
-            [ngModel]="mesRef"
-            (ngModelChange)="onMesRefChange($event)"
-            class="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
+        <!-- Mês de Referência — seletor por clique -->
+        <app-month-picker
+          label="Mês de Referência"
+          [value]="mesRef"
+          (valueChange)="onMesRefChange($event)"
+        />
 
-        <!-- Mês de Vencimento -->
-        <div>
-          <label for="mes-venc" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Vencimento em
-          </label>
-          <input
-            id="mes-venc"
-            type="month"
-            [(ngModel)]="mesVenc"
-            class="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-          />
-        </div>
+        <!-- Mês de Vencimento — seletor por clique -->
+        <app-month-picker
+          label="Vencimento em"
+          [value]="mesVenc"
+          (valueChange)="mesVenc = $event"
+        />
 
         <!-- Valor por Litro — inline edit -->
         <div>
-          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Valor por Litro</p>
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Valor por Litro</p>
           @if (!editandoPreco) {
             <button
               type="button"
               (click)="iniciarEditarPreco()"
-              class="group flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              class="group flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 hover:border-primary-300 hover:bg-primary-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
               title="Clique para editar"
             >
-              <span class="text-sm font-semibold text-slate-900">
-                R$ {{ svc.valorPorLitro() | number:'1.4-4' }}
+              <span class="material-symbols-rounded text-[16px] text-primary-500" aria-hidden="true">water_drop</span>
+              <span class="text-sm font-semibold text-slate-800">
+                R$&nbsp;{{ svc.valorPorLitro() | number:'1.4-4' }}
               </span>
-              <span class="material-symbols-rounded text-[15px] text-slate-400 group-hover:text-primary-600 transition-colors" aria-hidden="true">edit</span>
+              <span class="material-symbols-rounded text-[14px] text-slate-400 group-hover:text-primary-600 transition-colors" aria-hidden="true">edit</span>
             </button>
           } @else {
             <div class="flex items-center gap-1">
@@ -96,20 +92,14 @@ import { DespesasService } from '../../services/despesas.service';
                 class="w-28 text-sm text-right border border-primary-400 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 aria-label="Novo valor por litro"
               />
-              <button
-                type="button"
-                (click)="confirmarPreco()"
+              <button type="button" (click)="confirmarPreco()"
                 class="p-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                aria-label="Confirmar preço"
-              >
+                aria-label="Confirmar preço">
                 <span class="material-symbols-rounded text-[16px]" aria-hidden="true">check</span>
               </button>
-              <button
-                type="button"
-                (click)="cancelarPreco()"
+              <button type="button" (click)="cancelarPreco()"
                 class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors focus:outline-none"
-                aria-label="Cancelar edição"
-              >
+                aria-label="Cancelar edição">
                 <span class="material-symbols-rounded text-[16px]" aria-hidden="true">close</span>
               </button>
             </div>
@@ -117,12 +107,15 @@ import { DespesasService } from '../../services/despesas.service';
         </div>
       </div>
 
-      <!-- Banner -->
+      <!-- Banner informativo -->
       <div class="rounded-xl bg-blue-50 border border-blue-100 px-4 py-2.5 flex items-center gap-2">
         <span class="material-symbols-rounded text-blue-400 text-[16px] shrink-0" aria-hidden="true">info</span>
         <p class="text-xs text-blue-700">
-          Leituras de <strong>{{ formatMes(mesRef) }}</strong> · vencimento dia 10 de
-          <strong>{{ formatMes(mesVenc) }}</strong> · R$ {{ svc.valorPorLitro() | number:'1.4-4' }}/L
+          Leituras de <strong>{{ formatMes(mesRef) }}</strong> · vencimento dia&nbsp;10 de
+          <strong>{{ formatMes(mesVenc) }}</strong> · R$&nbsp;{{ svc.valorPorLitro() | number:'1.4-4' }}/L
+          @if (carregandoAnteriores()) {
+            · <span class="text-blue-500 italic">carregando leituras anteriores...</span>
+          }
         </p>
       </div>
     </div>
@@ -164,7 +157,10 @@ import { DespesasService } from '../../services/despesas.service';
           <thead>
             <tr class="border-b border-slate-100">
               <th scope="col" class="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider px-5 py-3">Morador / Unidade</th>
-              <th scope="col" class="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-3">Leit. Anterior</th>
+              <th scope="col" class="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-3">
+                Leit. Anterior
+                <span class="block text-[10px] font-normal normal-case tracking-normal text-slate-300">auto do mês anterior</span>
+              </th>
               <th scope="col" class="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-3">Leit. Atual</th>
               <th scope="col" class="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-3">Consumo (L)</th>
               <th scope="col" class="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider px-4 py-3">Valor</th>
@@ -172,7 +168,7 @@ import { DespesasService } from '../../services/despesas.service';
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
-            @if (moradoresSvc.loading()) {
+            @if (moradoresSvc.loading() || carregandoAnteriores()) {
               <tr>
                 <td colspan="6" class="text-center py-12 text-slate-400 text-sm">Carregando...</td>
               </tr>
@@ -204,18 +200,28 @@ import { DespesasService } from '../../services/despesas.service';
                     </div>
                   </td>
 
-                  <!-- Leitura anterior -->
+                  <!-- Leitura anterior (auto-preenchida do Supabase) -->
                   <td class="px-4 py-3">
-                    <input
-                      type="number"
-                      step="0.001"
-                      min="0"
-                      [(ngModel)]="anteriorValores[m.id]"
-                      [disabled]="lancados().has(m.id)"
-                      placeholder="0"
-                      [attr.aria-label]="'Leitura anterior de ' + m.nome"
-                      class="w-28 text-sm text-right border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed tabular-nums"
-                    />
+                    <div class="relative">
+                      <input
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        [(ngModel)]="anteriorValores[m.id]"
+                        [disabled]="lancados().has(m.id)"
+                        placeholder="0"
+                        [attr.aria-label]="'Leitura anterior de ' + m.nome"
+                        class="w-28 text-sm text-right border rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed tabular-nums"
+                        [class]="anteriorDeSuapbase[m.id] ? 'border-blue-200 bg-blue-50' : 'border-slate-200'"
+                      />
+                      @if (anteriorDeSuapbase[m.id]) {
+                        <span
+                          class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-blue-400"
+                          title="Preenchido automaticamente do registro anterior"
+                          aria-hidden="true"
+                        ></span>
+                      }
+                    </div>
                   </td>
 
                   <!-- Leitura atual -->
@@ -290,37 +296,86 @@ import { DespesasService } from '../../services/despesas.service';
           }
         </table>
       </div>
+
+      <!-- Legenda -->
+      @if (!carregandoAnteriores() && moradoresSvc.moradores().length > 0) {
+        <div class="px-5 py-3 border-t border-slate-50 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0" aria-hidden="true"></span>
+          <p class="text-xs text-slate-400">Campo com ponto azul = leitura anterior preenchida automaticamente do registro do mês anterior no banco de dados</p>
+        </div>
+      }
     </div>
   </div>
   `,
 })
 export class AguaPage implements OnInit {
-  protected readonly svc = inject(LeituraAguaService);
+  protected readonly svc          = inject(LeituraAguaService);
+  protected readonly mesRefSvc    = inject(MesReferenciaService);
   protected readonly moradoresSvc = inject(MoradoresService);
-  protected readonly despesasSvc = inject(DespesasService);
-  private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly despesasSvc  = inject(DespesasService);
+  private   readonly cdr          = inject(ChangeDetectorRef);
 
   // Meses
-  protected mesRef = new Date().toISOString().substring(0, 7);
-  protected mesVenc = mesProximo(new Date().toISOString().substring(0, 7));
+  protected mesRef  = this.mesRefSvc.mes();
+  protected mesVenc = mesProximo(this.mesRefSvc.mes());
 
-  // Estado da edição de preço
+  // Estado edição de preço
   protected editandoPreco = false;
   protected precoTemp = '';
 
-  // Valores dos inputs por morador (ngModel gerencia change detection)
-  protected anteriorValores: Record<string, number | null> = {};
-  protected atualValores: Record<string, number | null> = {};
+  // Valores por morador
+  protected anteriorValores:    Record<string, number | null> = {};
+  protected atualValores:       Record<string, number | null> = {};
+  protected anteriorDeSuapbase: Record<string, boolean>       = {};
 
-  // IDs dos moradores que já tiveram despesa lançada nesta sessão
-  protected readonly lancados = signal<Set<string>>(new Set());
-  protected readonly lancando = signal(false);
-  protected readonly erroLancamento = signal('');
+  // Signals
+  protected readonly lancados          = signal<Set<string>>(new Set());
+  protected readonly lancando          = signal(false);
+  protected readonly erroLancamento    = signal('');
+  protected readonly carregandoAnteriores = signal(false);
 
   async ngOnInit(): Promise<void> {
     await this.moradoresSvc.carregar();
     this.initInputs();
+    await this.carregarLeiturasMes();
     this.cdr.markForCheck();
+  }
+
+  // ── Carregamento ─────────────────────────────────────────
+  /** Carrega leituras já salvas para o mês atual e pré-preenche as "anteriores" */
+  private async carregarLeiturasMes(): Promise<void> {
+    this.carregandoAnteriores.set(true);
+    try {
+      // Leituras salvas para o mês de referência atual (edição de registros existentes)
+      await this.svc.carregarPorMes(this.mesRef);
+      const leiturasMes = this.svc.leituras();
+
+      for (const m of this.moradoresSvc.moradores()) {
+        // Se já tem leitura salva para este mês, preenche os campos
+        const leituraSalva = leiturasMes.find((l) => l.morador_id === m.id);
+        if (leituraSalva) {
+          this.anteriorValores[m.id] = leituraSalva.leitura_anterior;
+          this.atualValores[m.id]    = leituraSalva.leitura_atual;
+          this.anteriorDeSuapbase[m.id] = false;
+          if (leituraSalva.despesa_id) {
+            this.lancados.update((s) => { const ns = new Set(s); ns.add(m.id); return ns; });
+          }
+          continue;
+        }
+
+        // Caso contrário, busca a leitura do mês anterior para pré-preencher "anterior"
+        const ultima = await this.svc.buscarUltimaLeitura(m.id, this.mesRef);
+        if (ultima) {
+          this.anteriorValores[m.id]    = ultima.leitura_atual;
+          this.anteriorDeSuapbase[m.id] = true;
+        } else {
+          this.anteriorDeSuapbase[m.id] = false;
+        }
+      }
+    } finally {
+      this.carregandoAnteriores.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   private initInputs(): void {
@@ -330,21 +385,26 @@ export class AguaPage implements OnInit {
     }
   }
 
-  protected onMesRefChange(mes: string): void {
+  protected async onMesRefChange(mes: string): Promise<void> {
     if (!mes) return;
-    this.mesRef = mes;
+    this.mesRef  = mes;
     this.mesVenc = mesProximo(mes);
-    // Reseta lançados ao mudar de mês
+    this.mesRefSvc.setMes(mes);
+
+    // Reset
     this.lancados.set(new Set());
-    this.anteriorValores = {};
-    this.atualValores = {};
+    this.anteriorValores    = {};
+    this.atualValores       = {};
+    this.anteriorDeSuapbase = {};
     this.initInputs();
+
+    await this.carregarLeiturasMes();
     this.cdr.markForCheck();
   }
 
   // ── Preço ────────────────────────────────────────────────
   protected iniciarEditarPreco(): void {
-    this.precoTemp = String(this.svc.valorPorLitro());
+    this.precoTemp    = String(this.svc.valorPorLitro());
     this.editandoPreco = true;
   }
 
@@ -354,9 +414,7 @@ export class AguaPage implements OnInit {
     this.editandoPreco = false;
   }
 
-  protected cancelarPreco(): void {
-    this.editandoPreco = false;
-  }
+  protected cancelarPreco(): void { this.editandoPreco = false; }
 
   // ── Cálculos ─────────────────────────────────────────────
   protected consumo(moradorId: string): number | null {
@@ -373,9 +431,7 @@ export class AguaPage implements OnInit {
 
   // ── Contadores ───────────────────────────────────────────
   protected preenchidos(): number {
-    return this.moradoresSvc.moradores().filter(
-      (m) => this.atualValores[m.id] != null,
-    ).length;
+    return this.moradoresSvc.moradores().filter((m) => this.atualValores[m.id] != null).length;
   }
 
   protected pendentes(): number {
@@ -384,14 +440,10 @@ export class AguaPage implements OnInit {
     ).length;
   }
 
-  protected lancadosCount(): number {
-    return this.lancados().size;
-  }
+  protected lancadosCount(): number { return this.lancados().size; }
 
   protected totalACobrar(): number {
-    return this.moradoresSvc.moradores().reduce(
-      (sum, m) => sum + (this.valorTotal(m.id) ?? 0), 0,
-    );
+    return this.moradoresSvc.moradores().reduce((sum, m) => sum + (this.valorTotal(m.id) ?? 0), 0);
   }
 
   // ── Lançamento ───────────────────────────────────────────
@@ -411,27 +463,41 @@ export class AguaPage implements OnInit {
 
     const [ano, mes] = this.mesVenc.split('-');
     const dataVencimento = `${ano}-${mes}-10`;
+    const preco = this.svc.valorPorLitro();
 
     let erros = 0;
     const novosLancados = new Set(this.lancados());
 
     for (const m of pendentes) {
       try {
-        const ant = Number(this.anteriorValores[m.id] ?? 0);
-        const atu = Number(this.atualValores[m.id]);
+        const ant          = Number(this.anteriorValores[m.id] ?? 0);
+        const atu          = Number(this.atualValores[m.id]);
         const consumoLitros = Math.max(0, atu - ant);
-        const preco = this.svc.valorPorLitro();
-        const valor = consumoLitros * preco;
+        const valor         = consumoLitros * preco;
 
-        await this.despesasSvc.criar({
-          descricao: `Água – ${m.unidade} (${formatMesLabel(this.mesRef)})`,
-          categoria_id: catAgua?.id,
+        // 1. Cria a despesa
+        const despesa = await this.despesasSvc.criar({
+          descricao:       `Água – ${m.unidade} (${formatMesLabel(this.mesRef)})`,
+          categoria_id:    catAgua?.id,
           valor,
-          mes_referencia: this.mesRef,
+          mes_referencia:  this.mesRef,
           data_vencimento: dataVencimento,
-          status: 'pendente',
-          observacao:
-            `Leitura: ${ant} → ${atu} = ${consumoLitros.toFixed(3)}L × R$${preco.toFixed(4)}/L`,
+          status:          'pendente',
+          observacao:      `Leitura: ${ant} → ${atu} = ${consumoLitros.toFixed(3)}L × R$${preco.toFixed(4)}/L`,
+        });
+
+        // 2. Salva a leitura no Supabase
+        await this.svc.salvar({
+          morador_id:       m.id,
+          mes_referencia:   this.mesRef,
+          mes_vencimento:   this.mesVenc,
+          leitura_anterior: ant,
+          leitura_atual:    atu,
+          consumo_litros:   consumoLitros,
+          valor_unitario:   preco,
+          valor_total:      valor,
+          despesa_id:       despesa.id,
+          observacao:       `Lançado em ${new Date().toLocaleDateString('pt-BR')}`,
         });
 
         novosLancados.add(m.id);
@@ -451,9 +517,7 @@ export class AguaPage implements OnInit {
   }
 
   // ── Helpers ──────────────────────────────────────────────
-  protected formatMes(mes: string): string {
-    return formatMesLabel(mes);
-  }
+  protected formatMes(mes: string): string { return formatMesLabel(mes); }
 
   protected initials(nome: string): string {
     return nome.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
