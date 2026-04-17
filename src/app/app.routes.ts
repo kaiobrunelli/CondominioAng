@@ -48,12 +48,6 @@ export const routes: Routes = [
         title: 'Moradores – CondoGest',
       },
       {
-        path: 'rateio',
-        loadComponent: () =>
-          import('./pages/rateio/rateio').then((m) => m.RateioPage),
-        title: 'Rateio – CondoGest',
-      },
-      {
         path: 'relatorio',
         loadComponent: () =>
           import('./pages/relatorio/relatorio').then((m) => m.RelatorioPage),

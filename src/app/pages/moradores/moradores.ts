@@ -231,17 +231,6 @@ import type { Morador } from '../../models/types';
             />
           </div>
 
-          @if (form.get('tipo')?.value === 'cobertura') {
-            <div
-              class="rounded-xl bg-amber-50 border border-amber-100 p-3 flex gap-2"
-              role="note"
-            >
-              <span class="material-symbols-rounded text-amber-500 text-[18px] shrink-0 mt-0.5" aria-hidden="true">info</span>
-              <p class="text-xs text-amber-700">
-                Morador de cobertura paga a cota normal acrescida do percentual configurado no condomínio.
-              </p>
-            </div>
-          }
 
           <div class="flex gap-3 pt-2">
             <button

@@ -12,6 +12,11 @@ import { CondominioService } from '../../services/condominio.service';
   selector: 'app-onboarding',
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  `],
   template: `
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-primary-50 flex items-center justify-center p-4">
     <div class="w-full max-w-md">
@@ -51,22 +56,22 @@ import { CondominioService } from '../../services/condominio.service';
           </div>
 
           <div>
-            <label for="o-pct" class="label">
-              % extra para Cobertura <span aria-hidden="true">*</span>
-            </label>
-            <input
-              id="o-pct"
-              formControlName="percentual_cobertura"
-              type="number"
-              min="0"
-              max="100"
-              step="0.5"
-              class="input-field"
-              [attr.aria-required]="true"
-              aria-describedby="o-pct-desc"
-            />
-            <p id="o-pct-desc" class="text-xs text-slate-400 mt-1">
-              Padrão: 20%. Morador de cobertura paga 20% a mais que um apartamento normal.
+            <label for="o-taxa" class="label">Taxa Mensal do Condomínio (R$)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">R$</span>
+              <input
+                id="o-taxa"
+                formControlName="valor_condominio"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0,00"
+                class="input-field pl-9"
+                aria-describedby="o-taxa-desc"
+              />
+            </div>
+            <p id="o-taxa-desc" class="text-xs text-slate-400 mt-1">
+              Valor fixo cobrado mensalmente de todos os moradores. Pode ser alterado depois em Configurações.
             </p>
           </div>
 
@@ -88,7 +93,7 @@ import { CondominioService } from '../../services/condominio.service';
     </div>
   </div>
   `,
-  
+
 })
 export class OnboardingPage {
   private readonly condominioSvc = inject(CondominioService);
@@ -99,9 +104,9 @@ export class OnboardingPage {
   protected readonly erro = signal('');
 
   protected readonly form = this.fb.group({
-    nome:                 ['', Validators.required],
-    endereco:             [''],
-    percentual_cobertura: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+    nome:             ['', Validators.required],
+    endereco:         [''],
+    valor_condominio: [0, [Validators.required, Validators.min(0)]],
   });
 
   protected async criar(): Promise<void> {
@@ -111,9 +116,9 @@ export class OnboardingPage {
     try {
       const raw = this.form.getRawValue();
       await this.condominioSvc.criar({
-        nome: raw.nome!,
-        endereco: raw.endereco ?? undefined,
-        percentual_cobertura: Number(raw.percentual_cobertura),
+        nome:             raw.nome!,
+        endereco:         raw.endereco ?? undefined,
+        valor_condominio: Number(raw.valor_condominio ?? 0),
       });
       this.router.navigate(['/dashboard']);
     } catch (e: unknown) {

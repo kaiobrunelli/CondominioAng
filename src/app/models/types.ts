@@ -4,7 +4,7 @@ export interface Condominio {
   endereco?: string;
   cnpj?: string;
   codigo: string;
-  percentual_cobertura: number;
+  valor_condominio: number;   // taxa mensal fixa (R$)
   created_at?: string;
   updated_at?: string;
   // joined
@@ -48,27 +48,6 @@ export interface Despesa {
   categorias_despesa?: Pick<CategoriaDespesa, 'nome' | 'icone' | 'cor'>;
 }
 
-export interface Rateio {
-  id: string;
-  condominio_id: string;
-  mes_referencia: string;
-  morador_id: string;
-  valor_base: number;
-  valor_adicional: number;
-  valor_total: number;
-  status_pagamento: 'pendente' | 'pago' | 'atrasado';
-  data_pagamento?: string;
-  calculado_em?: string;
-  // joined
-  moradores?: Pick<Morador, 'nome' | 'unidade' | 'tipo'>;
-}
-
-export interface RateioCalculo {
-  morador: Morador;
-  valorBase: number;
-  valorAdicional: number;
-  valorTotal: number;
-}
 
 export interface ConfigAgua {
   id: string;

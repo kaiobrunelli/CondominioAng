@@ -422,7 +422,7 @@ type TipoFiltro = 'todos'  | 'despesa' | 'pagamento';
 
                       <!-- Saldo acumulado -->
                       <td class="px-4 py-3 text-right text-sm tabular-nums font-medium"
-                        [class]="(l.saldoAcumulado ?? 0) >= 0 ? 'text-slate-700' : 'text-red-600'">
+                        [class]="(l.saldoAcumulado || 0) >= 0 ? 'text-slate-700' : 'text-red-600'">
                         {{ l.saldoAcumulado | currency:'BRL':'symbol':'1.2-2' }}
                       </td>
                     </tr>

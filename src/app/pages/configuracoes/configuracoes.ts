@@ -13,6 +13,11 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-configuracoes',
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  `],
   template: `
   <div class="p-6 lg:p-8 max-w-3xl mx-auto space-y-6 animate-fade-in">
 
@@ -72,25 +77,29 @@ import { AuthService } from '../../services/auth.service';
           />
         </div>
 
-        <div>
-          <label for="c-pct" class="label">
-            Percentual extra para Cobertura (%)
-            <span aria-hidden="true">*</span>
-          </label>
-          <input
-            id="c-pct"
-            formControlName="percentual_cobertura"
-            type="number"
-            min="0"
-            max="100"
-            step="0.5"
-            class="input-field"
-            aria-describedby="c-pct-hint"
-            [attr.aria-required]="true"
-          />
-          <p id="c-pct-hint" class="text-xs text-slate-400 mt-1">
-            Percentual adicional que moradores de cobertura pagam sobre a cota normal.
-            Exemplo: 20 = cobertura paga 20% a mais que uma unidade normal.
+        <!-- Taxa fixa mensal -->
+        <div class="rounded-xl bg-amber-50 border border-amber-100 p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-rounded text-amber-500 text-[18px]" aria-hidden="true">home</span>
+            <p class="text-sm font-semibold text-amber-800">Taxa Mensal do Condomínio (R$)</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-[200px]">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">R$</span>
+              <input
+                id="c-taxa"
+                formControlName="valor_condominio"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0,00"
+                class="input-field pl-9"
+                aria-describedby="c-taxa-hint"
+              />
+            </div>
+          </div>
+          <p id="c-taxa-hint" class="text-xs text-amber-700">
+            Valor fixo cobrado de todos os moradores por mês. Usado para lançar a despesa automaticamente na página de Despesas.
           </p>
         </div>
 
@@ -145,20 +154,20 @@ export class ConfiguracoesPage implements OnInit {
   protected readonly sucesso = signal(false);
 
   protected readonly form = this.fb.group({
-    nome:                  ['', Validators.required],
-    endereco:              [''],
-    cnpj:                  [''],
-    percentual_cobertura:  [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+    nome:              ['', Validators.required],
+    endereco:          [''],
+    cnpj:              [''],
+    valor_condominio:  [0, [Validators.required, Validators.min(0)]],
   });
 
   ngOnInit(): void {
     const condo = this.condominioSvc.ativo();
     if (condo) {
       this.form.patchValue({
-        nome: condo.nome,
-        endereco: condo.endereco ?? '',
-        cnpj: condo.cnpj ?? '',
-        percentual_cobertura: condo.percentual_cobertura,
+        nome:             condo.nome,
+        endereco:         condo.endereco ?? '',
+        cnpj:             condo.cnpj ?? '',
+        valor_condominio: condo.valor_condominio ?? 0,
       });
     }
   }
@@ -176,10 +185,10 @@ export class ConfiguracoesPage implements OnInit {
     try {
       const raw = this.form.getRawValue();
       await this.condominioSvc.atualizar(id, {
-        nome: raw.nome!,
-        endereco: raw.endereco ?? undefined,
-        cnpj: raw.cnpj ?? undefined,
-        percentual_cobertura: Number(raw.percentual_cobertura),
+        nome:             raw.nome!,
+        endereco:         raw.endereco ?? undefined,
+        cnpj:             raw.cnpj ?? undefined,
+        valor_condominio: Number(raw.valor_condominio ?? 0),
       });
       this.form.markAsPristine();
       this.sucesso.set(true);

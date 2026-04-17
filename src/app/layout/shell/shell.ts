@@ -152,7 +152,6 @@ export class ShellLayout {
     { label: 'Despesas',      path: 'despesas',      icon: 'receipt_long'    },
     { label: 'Água',          path: 'agua',          icon: 'water_drop'      },
     { label: 'Moradores',     path: 'moradores',     icon: 'groups'          },
-    { label: 'Rateio',        path: 'rateio',        icon: 'calculate'       },
     { label: 'Relatório',     path: 'relatorio',     icon: 'bar_chart'       },
     { label: 'Configurações', path: 'configuracoes', icon: 'settings'        },
   ];
