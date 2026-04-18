@@ -44,7 +44,7 @@ interface NavItem {
           </div>
           <div class="min-w-0">
             <span class="font-display text-lg font-semibold text-slate-900 leading-tight block">
-              CondoGest
+              Moradores
             </span>
             <p class="text-xs text-slate-400 leading-tight truncate">
               {{ condominioSvc.ativo()?.nome ?? 'Selecionar...' }}
